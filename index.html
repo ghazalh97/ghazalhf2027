@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Classroom - Offline Learning</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-purple: #8b5cf6;
+            --dark-purple: #6d28d9;
+            --light-purple: #a78bfa;
+            --bg-dark: #0f0f0f;
+            --bg-card: #1a1a1a;
+            --bg-hover: #252525;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a0a2e 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 26, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-purple), var(--light-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-purple:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+            color: white;
+        }
+
+        .btn-outline-purple {
+            border: 2px solid var(--primary-purple);
+            color: var(--primary-purple);
+            background: transparent;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-purple:hover {
+            background: var(--primary-purple);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+            border-color: var(--primary-purple);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+            border: none;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+
+        .form-control, .form-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-card);
+            border-color: var(--primary-purple);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+        }
+
+        .form-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .badge-purple {
+            background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+        }
+
+        .flashcard {
+            perspective: 1000px;
+            cursor: pointer;
+            height: 300px;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, var(--dark-purple), var(--primary-purple));
+        }
+
+        .quiz-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.75rem;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary-purple);
+            background: var(--bg-hover);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--primary-purple);
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .progress {
+            background: var(--bg-card);
+            border-radius: 8px;
+            height: 8px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-purple), var(--light-purple));
+            border-radius: 8px;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-secondary);
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--primary-purple);
+            border: none;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-purple);
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid var(--primary-purple);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--primary-purple);
+            margin-bottom: 1rem;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1));
+            border: 1px solid var(--primary-purple);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stats-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .motivational-quote {
+            background: linear-gradient(135deg, var(--dark-purple), var(--primary-purple));
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .motivational-quote p {
+            font-size: 1.25rem;
+            font-style: italic;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .flashcard {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showView('library')">
+                <i class="bi bi-mortarboard-fill me-2"></i>Pocket Classroom
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showView('library')">
+                            <i class="bi bi-house-fill me-1"></i>Library
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-purple ms-2" onclick="createNewCapsule()">
+                            <i class="bi bi-plus-circle me-1"></i>New Capsule
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container py-4">
+        <!-- Library View -->
+        <div id="libraryView" class="view">
+            <div class="motivational-quote">
+                <p>"Education is the most powerful weapon which you can use to change the world." - Nelson Mandela</p>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-collection-fill me-2"></i>My Learning Capsules</h2>
+                <div>
+                    <button class="btn btn-outline-purple me-2" onclick="document.getElementById('importFile').click()">
+                        <i class="bi bi-upload me-1"></i>Import
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importCapsule(event)">
+                </div>
+            </div>
+
+            <div id="capsuleGrid" class="row g-4">
+                <!-- Capsules will be rendered here -->
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="bi bi-inbox"></i>
+                <h3>No Capsules Yet</h3>
+                <p class="mb-3">Start your learning journey by creating your first capsule!</p>
+                <button class="btn btn-purple" onclick="createNewCapsule()">
+                    <i class="bi bi-plus-circle me-1"></i>Create Your First Capsule
+                </button>
+            </div>
+        </div>
+
+        <!-- Author View -->
+        <div id="authorView" class="view" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-pencil-square me-2"></i>Author Mode</h2>
+                <div>
+                    <button class="btn btn-outline-purple me-2" onclick="showView('library')">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                    </button>
+                    <button class="btn btn-purple" onclick="saveCapsule()">
+                        <i class="bi bi-save me-1"></i>Save Capsule
+                    </button>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Capsule Title *</label>
+                            <input type="text" class="form-control" id="capsuleTitle" placeholder="e.g., React Hooks Fundamentals">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Subject *</label>
+                            <input type="text" class="form-control" id="capsuleSubject" placeholder="e.g., Programming">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Level *</label>
+                            <select class="form-select" id="capsuleLevel">
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#notesTab">
+                        <i class="bi bi-journal-text me-1"></i>Notes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#flashcardsTab">
+                        <i class="bi bi-card-list me-1"></i>Flashcards
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#quizTab">
+                        <i class="bi bi-question-circle me-1"></i>Quiz
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Notes Tab -->
+                <div class="tab-pane fade show active" id="notesTab">
+                    <div class="card">
+                        <div class="card-body">
+                            <label class="form-label">Notes Content</label>
+                            <textarea class="form-control" id="notesContent" rows="15" placeholder="Write your notes here... Use clear headings and bullet points for better organization."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flashcards Tab -->
+                <div class="tab-pane fade" id="flashcardsTab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Flashcards</h5>
+                                <button class="btn btn-purple btn-sm" onclick="addFlashcard()">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Flashcard
+                                </button>
+                            </div>
+                            <div id="flashcardsList">
+                                <!-- Flashcards will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Tab -->
+                <div class="tab-pane fade" id="quizTab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Quiz Questions</h5>
+                                <button class="btn btn-purple btn-sm" onclick="addQuizQuestion()">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Question
+                                </button>
+                            </div>
+                            <div id="quizQuestionsList">
+                                <!-- Quiz questions will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learn View -->
+        <div id="learnView" class="view" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 id="learnTitle"><i class="bi bi-book me-2"></i>Learn Mode</h2>
+                <div>
+                    <button class="btn btn-outline-purple me-2" onclick="exportCurrentCapsule()">
+                        <i class="bi bi-download me-1"></i>Export
+                    </button>
+                    <button class="btn btn-outline-purple" onclick="showView('library')">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Library
+                    </button>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#learnNotesTab">
+                        <i class="bi bi-journal-text me-1"></i>Notes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#learnFlashcardsTab">
+                        <i class="bi bi-card-list me-1"></i>Flashcards
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#learnQuizTab">
+                        <i class="bi bi-question-circle me-1"></i>Quiz
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Learn Notes Tab -->
+                <div class="tab-pane fade show active" id="learnNotesTab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="notesSearch" placeholder="Search notes...">
+                            </div>
+                            <div id="learnNotesContent" style="white-space: pre-wrap; line-height: 1.8;">
+                                <!-- Notes content will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learn Flashcards Tab -->
+                <div class="tab-pane fade" id="learnFlashcardsTab">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <h3 id="flashcardProgress">0/0</h3>
+                                <p class="text-muted mb-0">Cards Mastered</p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <label class="form-label">Progress</label>
+                                    <div class="progress">
+                                        <div id="flashcardProgressBar" class="progress-bar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="flashcardContainer">
+                        <!-- Flashcard will be rendered here -->
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-outline-purple" onclick="previousFlashcard()">
+                            <i class="bi bi-arrow-left me-1"></i>Previous
+                        </button>
+                        <div>
+                            <button class="btn btn-outline-purple me-2" onclick="toggleFlashcardMastery()">
+                                <i class="bi bi-star me-1"></i>Toggle Mastery
+                            </button>
+                            <button class="btn btn-purple" onclick="nextFlashcard()">
+                                Next<i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learn Quiz Tab -->
+                <div class="tab-pane fade" id="learnQuizTab">
+                    <div id="quizStart" class="text-center py-5">
+                        <i class="bi bi-trophy" style="font-size: 4rem; color: var(--primary-purple);"></i>
+                        <h3 class="mt-3">Ready to Test Your Knowledge?</h3>
+                        <p class="text-muted mb-4">Challenge yourself with this quiz!</p>
+                        <button class="btn btn-purple btn-lg" onclick="startQuiz()">
+                            <i class="bi bi-play-fill me-2"></i>Start Quiz
+                        </button>
+                    </div>
+
+                    <div id="quizActive" style="display: none;">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5>Question <span id="currentQuestionNum">1</span> of <span id="totalQuestions">0</span></h5>
+                                    <span class="badge badge-purple">Score: <span id="quizScore">0</span></span>
+                                </div>
+                                <div class="progress mb-3">
+                                    <div id="quizProgressBar" class="progress-bar" style="width: 0%"></div>
+                                </div>
+                                <h4 id="quizQuestion" class="mb-4"></h4>
+                                <div id="quizOptions">
+                                    <!-- Options will be rendered here -->
+                                </div>
+                                <div class="mt-4">
+                                    <button class="btn btn-purple" id="submitAnswerBtn" onclick="submitAnswer()">
+                                        Submit Answer
+                                    </button>
+                                    <button class="btn btn-purple" id="nextQuestionBtn" style="display: none;" onclick="nextQuestion()">
+                                        Next Question
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="quizResults" style="display: none;">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <i class="bi bi-trophy" style="font-size: 4rem; color: var(--primary-purple);"></i>
+                                <h3 class="mt-3">Quiz Complete!</h3>
+                                <h2 class="my-4" style="color: var(--primary-purple);">
+                                    Score: <span id="finalScore">0</span>%
+                                </h2>
+                                <p class="text-muted mb-4" id="resultMessage"></p>
+                                <button class="btn btn-purple me-2" onclick="startQuiz()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Retake Quiz
+                                </button>
+                                <button class="btn btn-outline-purple" onclick="showView('library')">
+                                    <i class="bi bi-arrow-left me-1"></i>Back to Library
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Global State
+        let capsules = [];
+        let currentCapsule = null;
+        let currentCapsuleId = null;
+        let currentFlashcardIndex = 0;
+        let currentQuestionIndex = 0;
+        let quizAnswers = [];
+        let selectedAnswer = null;
+
+        // Initialize App
+        function init() {
+            loadCapsules();
+            renderLibrary();
+        }
+
+        // LocalStorage Functions
+        function loadCapsules() {
+            const stored = localStorage.getItem('pocketClassroomCapsules');
+            capsules = stored ? JSON.parse(stored) : [];
+        }
+
+        function saveCapsulesToStorage() {
+            localStorage.setItem('pocketClassroomCapsules', JSON.stringify(capsules));
+        }
+
+        // View Management
+        function showView(viewName) {
+            document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
+            
+            if (viewName === 'library') {
+                document.getElementById('libraryView').style.display = 'block';
+                renderLibrary();
+            } else if (viewName === 'author') {
+                document.getElementById('authorView').style.display = 'block';
+            } else if (viewName === 'learn') {
+                document.getElementById('learnView').style.display = 'block';
+            }
+        }
+
+        // Library Functions
+        function renderLibrary() {
+            const grid = document.getElementById('capsuleGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (capsules.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            grid.innerHTML = capsules.map((capsule, index) => {
+                const masteredCount = capsule.flashcardProgress ? 
+                    capsule.flashcardProgress.filter(m => m).length : 0;
+                const totalFlashcards = capsule.flashcards.length;
+                const lastScore = capsule.quizScores && capsule.quizScores.length > 0 ? 
+                    capsule.quizScores[capsule.quizScores.length - 1] : null;
+
+                return `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">${capsule.title}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <span class="badge badge-purple me-2">${capsule.subject}</span>
+                                    <span class="badge bg-secondary">${capsule.level}</span>
+                                </div>
+                                <p class="text-muted small mb-2">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Updated: ${new Date(capsule.lastUpdated).toLocaleDateString()}
+                                </p>
+                                <div class="mb-2">
+                                    <small class="text-muted">Flashcards: ${masteredCount}/${totalFlashcards} mastered</small>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar" style="width: ${totalFlashcards > 0 ? (masteredCount/totalFlashcards*100) : 0}%"></div>
+                                    </div>
+                                </div>
+                                ${lastScore !== null ? `
+                                    <p class="text-muted small mb-0">
+                                        <i class="bi bi-trophy me-1"></i>
+                                        Last Quiz: ${lastScore}%
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <div class="card-footer bg-transparent border-top border-secondary">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-purple btn-sm flex-fill" onclick="learnCapsule(${index})">
+                                        <i class="bi bi-book me-1"></i>Learn
+                                    </button>
+                                    <button class="btn btn-outline-purple btn-sm" onclick="editCapsule(${index})">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-purple btn-sm" onclick="exportCapsule(${index})">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteCapsule(${index})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Author Mode Functions
+        function createNewCapsule() {
+            currentCapsuleId = null;
+            currentCapsule = {
+                title: '',
+                subject: '',
+                level: 'Beginner',
+                notes: '',
+                flashcards: [],
+                quiz: [],
+                flashcardProgress: [],
+                quizScores: [],
+                lastUpdated: new Date().toISOString()
+            };
+            
+            document.getElementById('capsuleTitle').value = '';
+            document.getElementById('capsuleSubject').value = '';
+            document.getElementById('capsuleLevel').value = 'Beginner';
+            document.getElementById('notesContent').value = '';
+            document.getElementById('flashcardsList').innerHTML = '';
+            document.getElementById('quizQuestionsList').innerHTML = '';
+            
+            showView('author');
+        }
+
+        function editCapsule(index) {
+            currentCapsuleId = index;
+            currentCapsule = JSON.parse(JSON.stringify(capsules[index]));
+            
+            document.getElementById('capsuleTitle').value = currentCapsule.title;
+            document.getElementById('capsuleSubject').value = currentCapsule.subject;
+            document.getElementById('capsuleLevel').value = currentCapsule.level;
+            document.getElementById('notesContent').value = currentCapsule.notes;
+            
+            renderFlashcardsEditor();
+            renderQuizEditor();
+            
+            showView('author');
+        }
+
+        function saveCapsule() {
+            const title = document.getElementById('capsuleTitle').value.trim();
+            const subject = document.getElementById('capsuleSubject').value.trim();
+            const level = document.getElementById('capsuleLevel').value;
+            const notes = document.getElementById('notesContent').value.trim();
+
+            if (!title || !subject) {
+                alert('Please fill in all required fields (Title and Subject)');
+                return;
+            }
+
+            const capsule = {
+                title,
+                subject,
+                level,
+                notes,
+                flashcards: currentCapsule.flashcards || [],
+                quiz: currentCapsule.quiz || [],
+                flashcardProgress: currentCapsule.flashcardProgress || [],
+                quizScores: currentCapsule.quizScores || [],
+                lastUpdated: new Date().toISOString()
+            };
+
+            if (currentCapsuleId !== null) {
+                capsules[currentCapsuleId] = capsule;
+            } else {
+                capsules.push(capsule);
+            }
+
+            saveCapsulesToStorage();
+            showView('library');
+        }
+
+        function addFlashcard() {
+            if (!currentCapsule.flashcards) currentCapsule.flashcards = [];
+            currentCapsule.flashcards.push({ front: '', back: '' });
+            renderFlashcardsEditor();
+        }
+
+        function removeFlashcard(index) {
+            currentCapsule.flashcards.splice(index, 1);
+            renderFlashcardsEditor();
+        }
+
+        function renderFlashcardsEditor() {
+            const container = document.getElementById('flashcardsList');
+            
+            if (!currentCapsule.flashcards || currentCapsule.flashcards.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center py-4">No flashcards yet. Click "Add Flashcard" to create one.</p>';
+                return;
+            }
+
+            container.innerHTML = currentCapsule.flashcards.map((card, index) => `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6>Flashcard ${index + 1}</h6>
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeFlashcard(${index})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Front (Question)</label>
+                            <input type="text" class="form-control" value="${card.front}" 
+                                onchange="currentCapsule.flashcards[${index}].front = this.value">
+                        </div>
+                        <div>
+                            <label class="form-label">Back (Answer)</label>
+                            <textarea class="form-control" rows="2" 
+                                onchange="currentCapsule.flashcards[${index}].back = this.value">${card.back}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addQuizQuestion() {
+            if (!currentCapsule.quiz) currentCapsule.quiz = [];
+            currentCapsule.quiz.push({
+                question: '',
+                options: ['', '', '', ''],
+                correctAnswer: 0
+            });
+            renderQuizEditor();
+        }
+
+        function removeQuizQuestion(index) {
+            currentCapsule.quiz.splice(index, 1);
+            renderQuizEditor();
+        }
+
+        function renderQuizEditor() {
+            const container = document.getElementById('quizQuestionsList');
+            
+            if (!currentCapsule.quiz || currentCapsule.quiz.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center py-4">No quiz questions yet. Click "Add Question" to create one.</p>';
+                return;
+            }
+
+            container.innerHTML = currentCapsule.quiz.map((q, index) => `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6>Question ${index + 1}</h6>
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeQuizQuestion(${index})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Question</label>
+                            <input type="text" class="form-control" value="${q.question}" 
+                                onchange="currentCapsule.quiz[${index}].question = this.value">
+                        </div>
+                        ${q.options.map((opt, optIndex) => `
+                            <div class="mb-2">
+                                <label class="form-label">Option ${optIndex + 1}</label>
+                                <input type="text" class="form-control" value="${opt}" 
+                                    onchange="currentCapsule.quiz[${index}].options[${optIndex}] = this.value">
+                            </div>
+                        `).join('')}
+                        <div>
+                            <label class="form-label">Correct Answer</label>
+                            <select class="form-select" onchange="currentCapsule.quiz[${index}].correctAnswer = parseInt(this.value)">
+                                ${q.options.map((_, optIndex) => `
+                                    <option value="${optIndex}" ${q.correctAnswer === optIndex ? 'selected' : ''}>
+                                        Option ${optIndex + 1}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Learn Mode Functions
+        function learnCapsule(index) {
+            currentCapsuleId = index;
+            currentCapsule = capsules[index];
+            currentFlashcardIndex = 0;
+            
+            document.getElementById('learnTitle').innerHTML = `<i class="bi bi-book me-2"></i>${currentCapsule.title}`;
+            
+            // Render notes
+            document.getElementById('learnNotesContent').textContent = currentCapsule.notes || 'No notes available.';
+            
+            // Setup notes search
+            document.getElementById('notesSearch').oninput = function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const content = currentCapsule.notes || '';
+                const notesDiv = document.getElementById('learnNotesContent');
+                
+                if (searchTerm) {
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    notesDiv.innerHTML = content.replace(regex, '<mark style="background: var(--primary-purple); color: white; padding: 2px 4px; border-radius: 3px;">$1</mark>');
+                } else {
+                    notesDiv.textContent = content;
+                }
+            };
+            
+            // Initialize flashcard progress
+            if (!currentCapsule.flashcardProgress) {
+                currentCapsule.flashcardProgress = new Array(currentCapsule.flashcards.length).fill(false);
+            }
+            
+            renderFlashcard();
+            showView('learn');
+        }
+
+        function renderFlashcard() {
+            const container = document.getElementById('flashcardContainer');
+            
+            if (!currentCapsule.flashcards || currentCapsule.flashcards.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center py-5">No flashcards available.</p>';
+                return;
+            }
+
+            const card = currentCapsule.flashcards[currentFlashcardIndex];
+            const isMastered = currentCapsule.flashcardProgress[currentFlashcardIndex];
+            
+            container.innerHTML = `
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div class="text-center">
+                                <h4>${card.front}</h4>
+                                <p class="text-muted mt-3">Click to flip</p>
+                            </div>
+                        </div>
+                        <div class="flashcard-back">
+                            <div class="text-center">
+                                <h4>${card.back}</h4>
+                                <p class="mt-3" style="opacity: 0.8;">Click to flip back</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <span class="badge ${isMastered ? 'badge-purple' : 'bg-secondary'}">
+                        ${isMastered ? '<i class="bi bi-star-fill me-1"></i>Mastered' : 'Not Mastered'}
+                    </span>
+                    <p class="text-muted mt-2">Card ${currentFlashcardIndex + 1} of ${currentCapsule.flashcards.length}</p>
+                </div>
+            `;
+
+            updateFlashcardProgress();
+        }
+
+        function updateFlashcardProgress() {
+            const mastered = currentCapsule.flashcardProgress.filter(m => m).length;
+            const total = currentCapsule.flashcards.length;
+            const percentage = total > 0 ? (mastered / total * 100) : 0;
+
+            document.getElementById('flashcardProgress').textContent = `${mastered}/${total}`;
+            document.getElementById('flashcardProgressBar').style.width = `${percentage}%`;
+        }
+
+        function previousFlashcard() {
+            if (currentFlashcardIndex > 0) {
+                currentFlashcardIndex--;
+                renderFlashcard();
+            }
+        }
+
+        function nextFlashcard() {
+            if (currentFlashcardIndex < currentCapsule.flashcards.length - 1) {
+                currentFlashcardIndex++;
+                renderFlashcard();
+            }
+        }
+
+        function toggleFlashcardMastery() {
+            currentCapsule.flashcardProgress[currentFlashcardIndex] = 
+                !currentCapsule.flashcardProgress[currentFlashcardIndex];
+            
+            capsules[currentCapsuleId] = currentCapsule;
+            saveCapsulesToStorage();
+            renderFlashcard();
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            if (!currentCapsule.quiz || currentCapsule.quiz.length === 0) {
+                alert('No quiz questions available.');
+                return;
+            }
+
+            currentQuestionIndex = 0;
+            quizAnswers = [];
+            selectedAnswer = null;
+
+            document.getElementById('quizStart').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'none';
+            document.getElementById('quizActive').style.display = 'block';
+            document.getElementById('totalQuestions').textContent = currentCapsule.quiz.length;
+
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const question = currentCapsule.quiz[currentQuestionIndex];
+            
+            document.getElementById('currentQuestionNum').textContent = currentQuestionIndex + 1;
+            document.getElementById('quizQuestion').textContent = question.question;
+            document.getElementById('quizScore').textContent = quizAnswers.filter(a => a).length;
+            
+            const progress = ((currentQuestionIndex) / currentCapsule.quiz.length) * 100;
+            document.getElementById('quizProgressBar').style.width = `${progress}%`;
+
+            const optionsHtml = question.options.map((option, index) => `
+                <div class="quiz-option" onclick="selectAnswer(${index})">
+                    <strong>${String.fromCharCode(65 + index)}.</strong> ${option}
+                </div>
+            `).join('');
+
+            document.getElementById('quizOptions').innerHTML = optionsHtml;
+            document.getElementById('submitAnswerBtn').style.display = 'inline-block';
+            document.getElementById('nextQuestionBtn').style.display = 'none';
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(index) {
+            document.querySelectorAll('.quiz-option').forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === index) opt.classList.add('selected');
+            });
+            selectedAnswer = index;
+        }
+
+        function submitAnswer() {
+            if (selectedAnswer === null) {
+                alert('Please select an answer.');
+                return;
+            }
+
+            const question = currentCapsule.quiz[currentQuestionIndex];
+            const isCorrect = selectedAnswer === question.correctAnswer;
+            quizAnswers.push(isCorrect);
+
+            document.querySelectorAll('.quiz-option').forEach((opt, i) => {
+                opt.onclick = null;
+                if (i === question.correctAnswer) {
+                    opt.classList.add('correct');
+                } else if (i === selectedAnswer) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            document.getElementById('submitAnswerBtn').style.display = 'none';
+            document.getElementById('quizScore').textContent = quizAnswers.filter(a => a).length;
+
+            if (currentQuestionIndex < currentCapsule.quiz.length - 1) {
+                document.getElementById('nextQuestionBtn').style.display = 'inline-block';
+            } else {
+                setTimeout(showQuizResults, 1000);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            renderQuizQuestion();
+        }
+
+        function showQuizResults() {
+            const score = Math.round((quizAnswers.filter(a => a).length / quizAnswers.length) * 100);
+            
+            if (!currentCapsule.quizScores) currentCapsule.quizScores = [];
+            currentCapsule.quizScores.push(score);
+            capsules[currentCapsuleId] = currentCapsule;
+            saveCapsulesToStorage();
+
+            document.getElementById('quizActive').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'block';
+            document.getElementById('finalScore').textContent = score;
+
+            let message = '';
+            if (score >= 90) message = '🎉 Outstanding! You\'ve mastered this material!';
+            else if (score >= 70) message = '👏 Great job! You have a solid understanding!';
+            else if (score >= 50) message = '👍 Good effort! Review the material and try again!';
+            else message = '💪 Keep studying! You\'ll get there!';
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        // Import/Export Functions
+        function exportCapsule(index) {
+            const capsule = capsules[index];
+            const dataStr = JSON.stringify(capsule, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${capsule.title.replace(/\s+/g, '-')}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCurrentCapsule() {
+            exportCapsule(currentCapsuleId);
+        }
+
+        function importCapsule(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const capsule = JSON.parse(e.target.result);
+                    
+                    // Validate capsule structure
+                    if (!capsule.title || !capsule.subject) {
+                        alert('Invalid capsule file.');
+                        return;
+                    }
+
+                    capsules.push(capsule);
+                    saveCapsulesToStorage();
+                    renderLibrary();
+                    alert('Capsule imported successfully!');
+                } catch (error) {
+                    alert('Error importing capsule. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function deleteCapsule(index) {
+            if (confirm('Are you sure you want to delete this capsule?')) {
+                capsules.splice(index, 1);
+                saveCapsulesToStorage();
+                renderLibrary();
+            }
+        }
+
+        // Initialize on page load
+        window.onload = init;
+    </script>
+</body>
+</html>
